@@ -48,7 +48,7 @@ class StartCommand extends Command {
 	public function fire()
 	{
 		//
-		$deamon_mode = $this->option('d');
+		$deamon_mode = $this->option('deamon');
 
 		// 检查扩展
 		if (!extension_loaded('pcntl'))
@@ -73,7 +73,10 @@ class StartCommand extends Command {
 		foreach ($applications as $application)
 		{
 			$start_path = base_path($application);
-			require_once $start_path;
+			if (is_file($start_path))
+			{
+				require_once $start_path;
+			}
 		}
 		// 运行所有服务
 
@@ -105,7 +108,7 @@ class StartCommand extends Command {
 	protected function getOptions()
 	{
 		return [
-			['d', null, InputOption::VALUE_OPTIONAL, 'Deamon mode.'],
+			['deamon', null, InputOption::VALUE_OPTIONAL, 'Deamon mode.', true],
 		];
 	}
 

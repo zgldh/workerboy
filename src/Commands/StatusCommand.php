@@ -11,6 +11,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Workerman\Worker;
 
 class StatusCommand extends Command {
 
@@ -46,6 +47,11 @@ class StatusCommand extends Command {
 	public function fire()
 	{
 		//
+		global $argv;
+		$argv[0] = 'artisan';
+		$argv[1] = 'status';
+
+		Worker::runAll();
 	}
 
 	/**
@@ -56,7 +62,6 @@ class StatusCommand extends Command {
 	protected function getArguments()
 	{
 		return [
-			['example', InputArgument::REQUIRED, 'An example argument.'],
 		];
 	}
 
@@ -68,7 +73,6 @@ class StatusCommand extends Command {
 	protected function getOptions()
 	{
 		return [
-			['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
 		];
 	}
 

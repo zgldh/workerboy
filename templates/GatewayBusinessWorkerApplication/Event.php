@@ -14,7 +14,7 @@ class Event {
 	 * @param int $client_id
 	 * @param string $message
 	 */
-	public static function onMessage($client_id, $message)
+	public function onMessage($client_id, $message)
 	{
 		// 获取客户端请求
 		$message_data = json_decode($message, true);
@@ -65,7 +65,7 @@ class Event {
 	 * 当用户断开连接时
 	 * @param integer $client_id 用户id
 	 */
-	public static function onClose($client_id)
+	public function onClose($client_id)
 	{
 		// 广播 xxx 退出了
 		GateWay::sendToAll(json_encode(array('type' => 'closed', 'id' => $client_id)));

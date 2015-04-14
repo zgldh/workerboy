@@ -39,6 +39,7 @@ $gateway->onConnect = function($connection)
 */
 // bussinessWorker 进程
 $worker = new BusinessWorker();
+$worker->setEvent(new Event());
 // worker名称
 $worker->name = 'TodpoleBusinessWorker';
 // bussinessWorker进程数量
