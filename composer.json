@@ -1,0 +1,28 @@
+{
+	"name": "zgldh/workerboy",
+	"license": "MIT",
+	"description": "Workerman 3 for Laravel 5.",
+	"keywords": [
+		"laravel",
+		"workerman",
+		"socket",
+		"websocket server"
+	],
+	"authors": [
+		{
+			"name": "zgldh",
+			"email": "zgldh@hotmail.com"
+		}
+	],
+	"require": {
+		"php": ">=5.4.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"zgldh\\workerboy\\": "src/"
+		},
+		"classmap": [
+			"libs/"
+		]
+	}
+}
