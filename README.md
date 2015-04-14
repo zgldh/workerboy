@@ -4,6 +4,10 @@ Workerboy是Workerman3在Laravel5下的封装。
 
 装上以后就可以用Laravel的artisan命令来管理workerman了。
 
+## 依赖
+ 本产品依赖 PHP的"ext-sockets" 扩展。Windows下就别想了。
+ 为了提升性能，推荐安装"ext-libevent" 扩展。看这里： http://www.workerman.net/install 
+
 ## 用法
 
  1. `composer require zgldh/workerboy`。
