@@ -4,6 +4,8 @@ Workerboy是Workerman3在Laravel5下的封装。
 
 装上以后就可以用Laravel的artisan命令来管理workerman了。
 
+Workerman3是用PHP来写Socket服务端的。
+
 ## 依赖
  PHP 5.4
 
@@ -11,7 +13,7 @@ Workerboy是Workerman3在Laravel5下的封装。
 
  为了提升性能，推荐安装"ext-libevent" 扩展。看这里： http://www.workerman.net/install 
 
-## 用法
+## 安装与使用
 
  1. `composer require zgldh/workerboy`。
  2. 在`config\app.php`的 `providers`数组添加 `zgldh\workerboy\WorkerBoyServiceProvider`。
@@ -36,7 +38,7 @@ Workerboy是Workerman3在Laravel5下的封装。
   `workerboy:stop` 停止系统。
 
  - ### restart
-  `workerboy:stop` 重启系统。
+  `workerboy:restart` 重启系统。
 
  - ### reload
   `workerboy:reload` 平滑重启。
