@@ -52,8 +52,6 @@ $worker->count = 4;
 //// 设置站点根目录
 //$web->addRoot('www.your_domain.com', __DIR__ . '/Web');
 
-App::bind('\Event', 'App\WorkermanApps\{WorkermanAppName}\Event');
-
 // 如果不是在根目录启动，则运行runAll方法
 if (!defined('GLOBAL_START'))
 {
