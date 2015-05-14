@@ -1,4 +1,16 @@
 <?php
+/**
+ * This file is part of workerman.
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the MIT-LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author walkor<walkor@workerman.net>
+ * @copyright walkor<walkor@workerman.net>
+ * @link http://www.workerman.net/
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ */
 namespace Workerman\Connection;
 
 use Workerman\Events\Libevent;
@@ -9,15 +21,9 @@ use \Exception;
 
 /**
  * 异步tcp连接类 
- * @author walkor<walkor@workerman.net>
  */
 class AsyncTcpConnection extends TcpConnection
 {
-    /**
-     * 连接状态 连接中
-     * @var int
-     */
-    protected $_status = self::STATUS_CONNECTING;
     
     /**
      * 当连接成功时，如果设置了连接成功回调，则执行
@@ -26,13 +32,18 @@ class AsyncTcpConnection extends TcpConnection
     public $onConnect = null;
     
     /**
+     * 连接状态 连接中
+     * @var int
+     */
+    protected $_status = self::STATUS_CONNECTING;
+    
+    /**
      * 构造函数，创建连接
      * @param resource $socket
      * @param EventInterface $event
      */
     public function __construct($remote_address)
     {
-        // 获得协议及远程地址
         list($scheme, $address) = explode(':', $remote_address, 2);
         if($scheme != 'tcp')
         {
@@ -48,11 +59,21 @@ class AsyncTcpConnection extends TcpConnection
                 }
             }
         }
+        $this->_remoteAddress = substr($address, 2);
+        $this->id = self::$_idRecorder++;
+        // 统计数据
+        self::$statistics['connection_count']++;
+        $this->maxSendBufferSize = self::$defaultMaxSendBufferSize;
+    }
+    
+    public function connect()
+    {
         // 创建异步连接
-        $this->_socket = stream_socket_client("tcp:$address", $errno, $errstr, 0, STREAM_CLIENT_ASYNC_CONNECT);
+        $this->_socket = stream_socket_client("tcp://{$this->_remoteAddress}", $errno, $errstr, 0, STREAM_CLIENT_ASYNC_CONNECT);
         // 如果失败尝试触发失败回调（如果有回调的话）
         if(!$this->_socket)
         {
+            $this->_status = self::STATUS_CLOSED;
             $this->emitError(WORKERMAN_CONNECT_FAIL, $errstr);
             return;
         }
@@ -103,8 +124,6 @@ class AsyncTcpConnection extends TcpConnection
             }
             // 标记状态为连接已经建立
             $this->_status = self::STATUS_ESTABLISH;
-            // 为status 命令统计数据
-            ConnectionInterface::$statistics['connection_count']++;
             // 如果有设置onConnect回调，则执行
             if($this->onConnect)
             {
@@ -121,6 +140,9 @@ class AsyncTcpConnection extends TcpConnection
         }
         else
         {
+            $this->_status = self::STATUS_CLOSED;
+            // 关闭socket
+            @fclose($this->_socket);
             // 连接未建立成功
             $this->emitError(WORKERMAN_CONNECT_FAIL, 'connect fail');
         }

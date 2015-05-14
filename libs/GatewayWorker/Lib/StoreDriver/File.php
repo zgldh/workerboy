@@ -1,152 +1,111 @@
 <?php
+/**
+ * This file is part of workerman.
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the MIT-LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author    walkor<walkor@workerman.net>
+ * @copyright walkor<walkor@workerman.net>
+ * @link      http://www.workerman.net/
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ */
 namespace GatewayWorker\Lib\StoreDriver;
 
 /**
- *
  * 这里用php数组文件来存储数据，
  * 为了获取高性能需要用类似memcache的存储
- * @author walkor <walkor@workerman.net>
- *
  */
 
-class File {
-	// 为了避免频繁读取磁盘，增加了缓存机制
-	protected $dataCache = array();
-	// 上次缓存时间
-	protected $lastCacheTime = 0;
-	// 保存数据的文件
-	protected $dataFile = '';
-	// 打开文件的句柄
-	protected $dataFileHandle = null;
+class File
+{
+    // 为了避免频繁读取磁盘，增加了缓存机制
+    protected $dataCache = array();
+    // 上次缓存时间
+    protected $lastCacheTime = 0;
+    // 打开文件的句柄
+    protected $dataFileHandle = null;
 
-	/**
-	 * 构造函数
-	 * @param 配置名 $config_name
-	 */
-	public function __construct($config_name)
-	{
-		$storePath      = \Config::get('workerboy.store.storePath');
-		$this->dataFile = $storePath . "/$config_name.store.cache.php";
-		if (!is_dir($storePath) && !@mkdir($storePath, 0777, true))
-		{
-			// 可能目录已经被其它进程创建
-			clearstatcache();
-			if (!is_dir($storePath))
-			{
-				// 避免狂刷日志
-				sleep(1);
-				throw new \Exception('can not mkdir(' . $storePath . ')');
-			}
-		}
-		if (!is_file($this->dataFile))
-		{
-			touch($this->dataFile);
-		}
-		$this->dataFileHandle = fopen(__FILE__, 'r');
-		if (!$this->dataFileHandle)
-		{
-			throw new \Exception("can not fopen($this->dataFile, 'r')");
-		}
-	}
+    private $storePath = null;
 
-	/**
-	 * 设置
-	 * @param string $key
-	 * @param mixed $value
-	 * @param int $ttl
-	 * @return number
-	 */
-	public function set($key, $value, $ttl = 0)
-	{
-		flock($this->dataFileHandle, LOCK_EX);
-		$this->readDataFromDisk();
-		$this->dataCache[ $key ] = $value;
-		$ret                     = $this->writeToDisk();
-		flock($this->dataFileHandle, LOCK_UN);
+    /**
+     * 构造函数
+     * @param 配置名 $config_name
+     */
+    public function __construct($config_name, $store_config)
+    {
+        $this->storePath = $store_config['storePath'];
+        if (!is_dir($this->storePath) && !@mkdir($this->storePath, 0777, true)) {
+            // 可能目录已经被其它进程创建
+            clearstatcache();
+            if (!is_dir($this->storePath)) {
+                // 避免狂刷日志
+                sleep(1);
+                throw new \Exception('cant not mkdir(' . $this->storePath . ')');
+            }
+        }
+        $this->dataFileHandle = fopen(__FILE__, 'r');
+        if (!$this->dataFileHandle) {
+            throw new \Exception("can not fopen dataFileHandle");
+        }
+    }
 
-		return $ret;
-	}
+    /**
+     * 设置
+     * @param string $key
+     * @param mixed $value
+     * @param int $ttl
+     * @return number
+     */
+    public function set($key, $value, $ttl = 0)
+    {
+        return file_put_contents($this->storePath . '/' . $key, serialize($value), LOCK_EX);
+    }
 
-	/**
-	 * 读取
-	 * @param string $key
-	 * @param bool $use_cache
-	 * @return Ambigous <NULL, multitype:>
-	 */
-	public function get($key, $use_cache = true)
-	{
-		flock($this->dataFileHandle, LOCK_EX);
-		$this->readDataFromDisk();
-		flock($this->dataFileHandle, LOCK_UN);
+    /**
+     * 读取
+     * @param string $key
+     * @param bool $use_cache
+     * @return Ambigous <NULL, multitype:>
+     */
+    public function get($key, $use_cache = true)
+    {
+        $ret = @file_get_contents($this->storePath . '/' . $key);
+        return $ret ? unserialize($ret) : null;
+    }
 
-		return isset($this->dataCache[ $key ])? $this->dataCache[ $key ] :null;
-	}
+    /**
+     * 删除
+     * @param string $key
+     * @return number
+     */
+    public function delete($key)
+    {
+        return @unlink($this->storePath . '/' . $key);
+    }
 
-	/**
-	 * 删除
-	 * @param string $key
-	 * @return number
-	 */
-	public function delete($key)
-	{
-		flock($this->dataFileHandle, LOCK_EX);
-		$this->readDataFromDisk();
-		unset($this->dataCache[ $key ]);
-		$ret = $this->writeToDisk();
-		flock($this->dataFileHandle, LOCK_UN);
+    /**
+     * 自增
+     * @param string $key
+     * @return boolean|multitype:
+     */
+    public function increment($key)
+    {
+        flock($this->dataFileHandle, LOCK_EX);
+        $val = $this->get($key);
+        $val = !$val ? 1 : ++$val;
+        file_put_contents($this->storePath . '/' . $key, serialize($val));
+        flock($this->dataFileHandle, LOCK_UN);
+        return $val;
+    }
 
-		return $ret;
-	}
+    /**
+     * 清零销毁存储数据
+     */
+    public function destroy()
+    {
 
-	/**
-	 * 自增
-	 * @param string $key
-	 * @return boolean|multitype:
-	 */
-	public function increment($key)
-	{
-		flock($this->dataFileHandle, LOCK_EX);
-		$this->readDataFromDisk();
-		if (!isset($this->dataCache[ $key ]))
-		{
-			flock($this->dataFileHandle, LOCK_UN);
+    }
 
-			return false;
-		}
-		$this->dataCache[ $key ] ++;
-		$this->writeToDisk();
-		flock($this->dataFileHandle, LOCK_UN);
-
-		return $this->dataCache[ $key ];
-	}
-
-	/**
-	 * 清零销毁存储数据
-	 */
-	public function destroy()
-	{
-		@unlink($this->dataFile);
-	}
-
-	/**
-	 * 写入磁盘
-	 * @return number
-	 */
-	protected function writeToDisk()
-	{
-		return file_put_contents($this->dataFile, "<?php \n return " . var_export($this->dataCache, true) . ';');
-	}
-
-	/**
-	 * 从磁盘读
-	 */
-	protected function readDataFromDisk()
-	{
-		$cache = include $this->dataFile;
-		if (is_array($cache))
-		{
-			$this->dataCache = $cache;
-		}
-		$this->lastCacheTime = time();
-	}
 }
