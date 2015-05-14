@@ -41,3 +41,4 @@ $text_worker->count = 1;
 $text_worker->onConnect = 'handler_connection';
 $text_worker->onMessage = 'handle_message';
 $text_worker->onClose   = 'handle_close';
+$text_worker->setStoreConfig($config['store']);
