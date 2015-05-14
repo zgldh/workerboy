@@ -13,6 +13,7 @@ Workerboy是Workerman3在Laravel5下的封装。
 
 ## 更新
  - v0.14 修复了多workerman应用间互相冲突的bug。 请注意新的config格式： ```/vendor/zgldh/workerboy/config/workerboy.php```
+请注意每个应用的```start.php```里面需要给每个worker配置config。具体请看应用模板文件```/vendor/zgldh/workerboy/templates/\GatewayBusinessWorkerApplication/start.php```
 
 ## 用法
 
