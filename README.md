@@ -60,26 +60,26 @@ Workerboy是Workerman3在Laravel5下的封装。
   一共3步：
   
   1. 在做WebSocket的页面输出一个凭证：
-    ```
-        <script>
-            var WORKERBOY_CREDENTIAL = <?php echo json_encode(\zgldh\workerboy\WorkerBoy::getInstance()->outputCredential()); ?>;
-        </script>
+    ```javascript
+    <script>
+        var WORKERBOY_CREDENTIAL = <?php echo json_encode(\zgldh\workerboy\WorkerBoy::getInstance()->outputCredential()); ?>;
+    </script>
     ```
    2. 在WebSocket连接时将凭证传过去：
-    ```
-        var ws = new WebSocket('ws://' + window.location.host + ':8685');
-        ws.onopen = function () {
-            ws.send(JSON.stringify({
-                type                : "login",
-                workerboy_credential: WORKERBOY_CREDENTIAL
-            }));
-        };
+    ```javascript
+    var ws = new WebSocket('ws://' + window.location.host + ':8685');
+    ws.onopen = function () {
+        ws.send(JSON.stringify({
+            type                : "login",
+            workerboy_credential: WORKERBOY_CREDENTIAL
+        }));
+    };
     ```
    3. 在Event.php里面验证凭证：
-    ```
-        $workerBoy = WorkerBoy::getInstance();
-        $credential = @$message_data['workerboy_credential'];
-        $userId = $workerBoy->validateCredential($credential);
+    ```php
+    $workerBoy = WorkerBoy::getInstance();
+    $credential = @$message_data['workerboy_credential'];
+    $userId = $workerBoy->validateCredential($credential);
     ```    
     这样你就拿到了当前Socket连接用户在Web服务器里的UserId了。
    
