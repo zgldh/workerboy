@@ -60,12 +60,14 @@ Workerboy是Workerman3在Laravel5下的封装。
   一共3步：
   
   1. 在做WebSocket的页面输出一个凭证：
+  
     ```javascript
     <script>
         var WORKERBOY_CREDENTIAL = <?php echo json_encode(\zgldh\workerboy\WorkerBoy::getInstance()->outputCredential()); ?>;
     </script>
     ```
   2. 在WebSocket连接时将凭证传过去：
+  
     ```javascript
     var ws = new WebSocket('ws://' + window.location.host + ':8685');
     ws.onopen = function () {
@@ -76,6 +78,7 @@ Workerboy是Workerman3在Laravel5下的封装。
     };
     ```
   3. 在Event.php里面验证凭证：
+  
     ```php
     $workerBoy = WorkerBoy::getInstance();
     $credential = @$message_data['workerboy_credential'];
