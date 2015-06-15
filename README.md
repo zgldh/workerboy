@@ -12,7 +12,7 @@ Workerboy是Workerman3在Laravel5下的封装。
  为了提升性能，推荐安装"ext-libevent" 扩展。看这里： http://www.workerman.net/install 
 
 ## 更新
- - v0.15 增加了“凭证”机制，用于同步Web服务器用户ID和Socket服务器ClientId。具体请查看下面凭证机制说明。
+ - v0.15 增加了“凭证”机制，用于同步Web服务器用户ID和Socket服务器ClientId。具体请查看下面[凭证机制](#凭证机制)说明。
  - v0.14 修复了多workerman应用间互相冲突的bug。 请注意新的config格式： ```/vendor/zgldh/workerboy/config/workerboy.php```
 请注意每个应用的```start.php```里面需要给每个worker配置config。具体请看应用模板文件```/vendor/zgldh/workerboy/templates/\GatewayBusinessWorkerApplication/start.php```
 
@@ -65,7 +65,7 @@ Workerboy是Workerman3在Laravel5下的封装。
         var WORKERBOY_CREDENTIAL = <?php echo json_encode(\zgldh\workerboy\WorkerBoy::getInstance()->outputCredential()); ?>;
     </script>
     ```
-   2. 在WebSocket连接时将凭证传过去：
+  2. 在WebSocket连接时将凭证传过去：
     ```javascript
     var ws = new WebSocket('ws://' + window.location.host + ':8685');
     ws.onopen = function () {
@@ -75,7 +75,7 @@ Workerboy是Workerman3在Laravel5下的封装。
         }));
     };
     ```
-   3. 在Event.php里面验证凭证：
+  3. 在Event.php里面验证凭证：
     ```php
     $workerBoy = WorkerBoy::getInstance();
     $credential = @$message_data['workerboy_credential'];
