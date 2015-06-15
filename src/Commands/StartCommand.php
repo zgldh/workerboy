@@ -11,7 +11,6 @@
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 use Workerman\Worker;
 
 class StartCommand extends Command
@@ -49,7 +48,7 @@ class StartCommand extends Command
     public function fire()
     {
         //
-        $deamon_mode = $this->option('deamon');
+        $deamonMode = $this->option('deamon');
 
         // 检查扩展
         if (!extension_loaded('pcntl')) {
@@ -70,9 +69,9 @@ class StartCommand extends Command
         $applications = Config::get('workerboy.applications');
         // 加载所有Applications/*/start.php，以便启动所有服务
         foreach ($applications as $application => $config) {
-            $start_path = base_path($application);
-            if (is_file($start_path)) {
-                require_once $start_path;
+            $startPath = base_path($application);
+            if (is_file($startPath)) {
+                require_once $startPath;
             }
         }
         // 运行所有服务
@@ -80,7 +79,7 @@ class StartCommand extends Command
         global $argv;
         $argv[0] = 'artisan';
         $argv[1] = 'start';
-        $argv[2] = $deamon_mode ? '-d' : null;
+        $argv[2] = $deamonMode ? '-d' : null;
 
         Worker::runAll();
     }

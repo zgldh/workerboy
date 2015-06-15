@@ -5,7 +5,9 @@
  * http://doc3.workerman.net/appendices/mysql.html
  */
 return array(
-    'applications' => array(        // 请仿照下面将自己建立的Workerman3应用的start.php文件路径填进去
+    'credential_processor' => 'zgldh\workerboy\CredentialProcessor', //凭证处理器，用于同步web服务器和socket服务器的用户session
+
+    'applications'         => array(        // 请仿照下面将自己建立的Workerman3应用的start.php文件路径填进去
         'app/WorkermanApps/Demo/start.php' => array(
             'store' => array(
                 'driver'    => 'file',

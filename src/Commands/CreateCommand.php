@@ -12,104 +12,100 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
-class CreateCommand extends Command {
+class CreateCommand extends Command
+{
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'workerboy:create';
+    /**
+     * The console command name.
+     *
+     * @var string
+     */
+    protected $name = 'workerboy:create';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'Create a new workerman application';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Create a new workerman application';
 
-	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-	}
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
-	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function fire()
-	{
-		//
-		$name        = $this->argument('name');
-		$worker_only = $this->option('worker-only');
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function fire()
+    {
+        //
+        $name = $this->argument('name');
+        $workerOnly = $this->option('worker-only');
 
-		$workerman_apps = app_path('WorkermanApps');
-		if (!is_dir($workerman_apps))
-		{
-			mkdir($workerman_apps);
-		}
-		$app_path = $workerman_apps . DIRECTORY_SEPARATOR . $name;
-		if (!is_dir($app_path))
-		{
-			mkdir($app_path);
-		}
-		$app_type = $worker_only == 1? 'WorkerApplication' :'GatewayBusinessWorkerApplication';
-		$files    = array();
-		foreach (array('Event.php', 'start.php') as $item)
-		{
-			$file_name           = $item;
-			$files[ $file_name ] = array(
-				'source'      =>
-					__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $app_type . DIRECTORY_SEPARATOR . $file_name,
-				'destination' => $app_path . DIRECTORY_SEPARATOR . $file_name
-			);
-		}
-		if ($worker_only == 1)
-		{
-			unset($files['Event.php']);
-		}
-		foreach ($files as $file)
-		{
-			$content = file_get_contents($file['source']);
-			$content = str_replace('{WorkermanAppName}', $name, $content);
-			file_put_contents($file['destination'], $content);
-		}
+        $workermanApps = app_path('WorkermanApps');
+        if (!is_dir($workermanApps)) {
+            mkdir($workermanApps);
+        }
+        $appPath = $workermanApps . DIRECTORY_SEPARATOR . $name;
+        if (!is_dir($appPath)) {
+            mkdir($appPath);
+        }
+        $appType = $workerOnly == 1 ? 'WorkerApplication' : 'GatewayBusinessWorkerApplication';
+        $files = array();
+        foreach (array('Event.php', 'start.php') as $item) {
+            $fileName = $item;
+            $files[$fileName] = array(
+                'source'      =>
+                    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $appType . DIRECTORY_SEPARATOR . $fileName,
+                'destination' => $appPath . DIRECTORY_SEPARATOR . $fileName
+            );
+        }
+        if ($workerOnly == 1) {
+            unset($files['Event.php']);
+        }
+        foreach ($files as $file) {
+            $content = file_get_contents($file['source']);
+            $content = str_replace('{WorkermanAppName}', $name, $content);
+            file_put_contents($file['destination'], $content);
+        }
 
-		$this->info('Workerman application "' . $name . '" created at ' . $app_path);
-	}
+        $this->info('Workerman application "' . $name . '" created at ' . $appPath);
+    }
 
-	/**
-	 * Get the console command arguments.
-	 *
-	 * @return array
-	 */
-	protected function getArguments()
-	{
-		return [
-			['name', InputArgument::REQUIRED, 'A workerman application needs a name.'],
-		];
-	}
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [
+            ['name', InputArgument::REQUIRED, 'A workerman application needs a name.'],
+        ];
+    }
 
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	protected function getOptions()
-	{
-		return [
-			[
-				'worker-only',
-				null,
-				InputOption::VALUE_NONE,
-				'Create application in Worker mode.'
-			],
-		];
-	}
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            [
+                'worker-only',
+                null,
+                InputOption::VALUE_NONE,
+                'Create application in Worker mode.'
+            ],
+        ];
+    }
 }
