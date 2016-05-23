@@ -1,3 +1,7 @@
+水平有限，workerboy坑了
+This package is deprecated.
+
+
 # Workerboy
 
 Workerboy是Workerman3在Laravel5下的封装。
