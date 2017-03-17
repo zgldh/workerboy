@@ -1,3 +1,5 @@
+请移步这里： http://workerman.net/gatewaydoc/work-with-other-frameworks/README.html
+
 水平有限，workerboy坑了
 This package is deprecated.
 
